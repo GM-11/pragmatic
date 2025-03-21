@@ -1,6 +1,61 @@
-# NativeWind Example
+# Pragmatic Wallpaper Generator
 
-Style your universal React app with Tailwind CSS classes. [NativeWind](https://www.nativewind.dev/) enables Tailwind CSS use in React Native apps.
+A mobile app that generates beautiful wallpapers using AI.
+
+## Features
+
+- Generate custom wallpapers using text prompts
+- Save wallpapers to your gallery
+- Browse and manage your wallpaper collection
+- Download wallpapers to your device
+
+## Tech Stack
+
+- React Native with Expo
+- TypeScript
+- NativeWind (TailwindCSS for React Native)
+- Hugging Face API for AI image generation
+- Expo Router for navigation
+
+## Project Structure
+
+```
+app/
+├── components/              # UI components
+│   ├── WallpaperDetail.tsx  # Detail view component
+│   ├── WallpaperGrid.tsx    # Grid view component
+│   ├── WallpaperPreview.tsx # Preview component
+│   └── WallpaperTile.tsx    # Tile component for grid
+├── hooks/                   # Custom hooks
+│   └── useWallpapers.ts     # Wallpaper storage hook
+├── lib/                     # External services
+│   └── wallpaperApi.ts      # Hugging Face API integration
+├── types/                   # TypeScript types
+│   └── index.ts             # Shared interfaces
+├── utils/                   # Utility functions
+│   └── fileUtils.ts         # File download utilities
+├── _layout.tsx              # Root layout with tab navigation
+├── gallery.tsx              # Gallery screen
+└── index.tsx                # Create screen
+```
+
+## Setup
+
+1. Clone the repository
+2. Install dependencies with `yarn install`
+3. Create a `.env` file with your Hugging Face API key:
+   ```
+   EXPO_PUBLIC_HUGGINGFACE_API_KEY=your_api_key_here
+   ```
+4. Run the app with `yarn start`
+
+## Environment Variables
+
+- `EXPO_PUBLIC_HUGGINGFACE_API_KEY`: Your Hugging Face API key for Stable Diffusion
+
+## License
+
+MIT
 
 <p>
   <!-- iOS -->
