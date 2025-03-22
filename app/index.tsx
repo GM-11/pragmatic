@@ -15,6 +15,7 @@ import { useWallpapers } from "./hooks/useWallpapers";
 import { WallpaperPreview } from "./components/WallpaperPreview";
 import { generateWallpaperImage } from "./lib/wallpaperApi";
 import { createWallpaperObject } from "./lib/wallpaperApi";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function Index() {
   const [prompt, setPrompt] = useState("");
@@ -64,48 +65,60 @@ export default function Index() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+
+      {/* App header */}
+      <View className="flex-row items-center justify-between px-5 pt-2 pb-4">
+        <Text className="text-2xl font-bold text-rose-600">Pragmatic</Text>
+        <TouchableOpacity className="bg-rose-50 p-2 rounded-full">
+          <Ionicons
+            name="information-circle-outline"
+            size={24}
+            color="#e11d48"
+          />
+        </TouchableOpacity>
+      </View>
+
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
       >
-        <View className="flex-1 px-4 pt-6">
-          <Text className="text-3xl font-bold text-rose-600 text-center mb-6">
-            Pragmatic
-          </Text>
-
+        <View className="flex-1 px-4">
+          {/* Main content area */}
           <WallpaperPreview
             imageUrl={previewImage}
             loading={loading}
             onSaveToGallery={handleSaveToGallery}
           />
 
-          {/* Input area at the bottom */}
-          <View className="pb-4 pt-2">
-            <TextInput
-              className="bg-gray-50 text-gray-800 p-4 rounded-xl mb-3 w-full border border-gray-100"
-              placeholder="Describe your perfect wallpaper..."
-              placeholderTextColor="#9ca3af"
-              value={prompt}
-              onChangeText={setPrompt}
-              multiline
-              numberOfLines={3}
-              style={{ textAlignVertical: "top" }}
-            />
+          {/* Input area */}
+          <View className="pb-6 pt-3 space-y-3">
+            <View className="bg-gray-50 rounded-2xl p-3 shadow-sm border border-gray-100">
+              <TextInput
+                className="text-gray-800 p-2 rounded-xl w-full"
+                placeholder="Describe your perfect wallpaper in detail..."
+                placeholderTextColor="#9ca3af"
+                value={prompt}
+                onChangeText={setPrompt}
+                multiline
+                numberOfLines={4}
+                style={{
+                  textAlignVertical: "top",
+                  minHeight: 100,
+                  maxHeight: 150,
+                }}
+              />
+            </View>
 
             <TouchableOpacity
-              className="bg-rose-500 p-4 rounded-xl w-full shadow-sm"
+              className="bg-rose-600 p-4 rounded-xl w-full shadow-sm flex-row justify-center items-center space-x-2"
               onPress={generateWallpaper}
               disabled={loading}
             >
-              {loading ? (
-                <Text className="text-white text-center font-semibold">
-                  ✨ Generating...
-                </Text>
-              ) : (
-                <Text className="text-white text-center font-semibold">
-                  ✨ Generate Wallpaper
-                </Text>
-              )}
+              <Ionicons name="sparkles" size={20} color="white" />
+              <Text className="text-white text-center font-semibold">
+                {loading ? "Creating..." : "Create Wallpaper"}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
