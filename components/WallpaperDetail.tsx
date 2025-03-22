@@ -11,6 +11,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { Wallpaper } from "../types";
 import EditModal from "./EditModal";
+import LoadingStateManager from "./LoadingStateManager";
 
 interface WallpaperDetailProps {
   wallpaper: Wallpaper;
@@ -22,6 +23,7 @@ interface WallpaperDetailProps {
     editInstructions: string
   ) => Promise<void>;
   onDeleteWallpaper?: (id: string) => Promise<void>;
+  isEditing?: boolean;
 }
 
 const { width } = Dimensions.get("window");
@@ -33,16 +35,14 @@ export default function WallpaperDetail({
   onSetAsWallpaper,
   onEditImage,
   onDeleteWallpaper,
+  isEditing = false,
 }: WallpaperDetailProps) {
   const [showEditModal, setShowEditModal] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
 
   const handleEditSubmit = async (editInstructions: string) => {
     if (onEditImage) {
-      setIsEditing(true);
+      setShowEditModal(false); // Close modal immediately to show loading state
       await onEditImage(wallpaper, editInstructions);
-      setIsEditing(false);
-      setShowEditModal(false);
     }
   };
 
@@ -87,63 +87,69 @@ export default function WallpaperDetail({
         )}
       </View>
 
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        <View className="items-center">
-          <View className=" rounded-3xl overflow-hidden shadow-md mb-4">
-            <Image
-              source={{ uri: wallpaper.imageUrl }}
-              style={{
-                width: width,
-                height: width * (1920 / 1080),
-                borderRadius: 16,
-              }}
-              resizeMode="center"
-            />
-          </View>
-          <View className="w-full px-4 space-y-4">
-            <Text
-              style={{ fontFamily: "Poppins_500Medium" }}
-              className="text-gray-800"
-            >
-              {wallpaper.prompt}
-            </Text>
-            <Text
-              style={{ fontFamily: "Poppins_400Regular" }}
-              className="text-gray-500 text-xs mt-2"
-            >
-              Created on {new Date(wallpaper.createdAt).toLocaleString()}
-            </Text>
-            <View className="flex-row">
-              <TouchableOpacity
-                className="flex-1 bg-rose-500 my-3 p-3 rounded-xl shadow-sm mr-2"
-                onPress={() => onDownload(wallpaper.imageUrl)}
+      {isEditing ? (
+        <View className="flex-1 bg-rose-50 rounded-3xl mx-2 shadow-inner overflow-hidden">
+          <LoadingStateManager isLoading={true} />
+        </View>
+      ) : (
+        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+          <View className="items-center mb-6">
+            <View className="bg-gradient-to-b from-rose-50 to-white p-3 rounded-3xl overflow-hidden shadow-md mb-4">
+              <Image
+                source={{ uri: wallpaper.imageUrl }}
+                style={{
+                  width: width * 0.9,
+                  height: width * 0.9 * (1920 / 1080),
+                  borderRadius: 16,
+                }}
+                resizeMode="contain"
+              />
+            </View>
+            <View className="w-full px-4 space-y-4">
+              <Text
+                style={{ fontFamily: "Poppins_500Medium" }}
+                className="text-gray-800"
               >
-                <Text
-                  style={{ fontFamily: "Poppins_600SemiBold" }}
-                  className="text-white text-center"
-                >
-                  💾 Download
-                </Text>
-              </TouchableOpacity>
-
-              {onEditImage && (
+                {wallpaper.prompt}
+              </Text>
+              <Text
+                style={{ fontFamily: "Poppins_400Regular" }}
+                className="text-gray-500 text-xs"
+              >
+                Created on {new Date(wallpaper.createdAt).toLocaleString()}
+              </Text>
+              <View className="flex-row space-x-3">
                 <TouchableOpacity
-                  className="flex-1 bg-gray-100 my-3 p-3 rounded-xl shadow-sm"
-                  onPress={() => setShowEditModal(true)}
-                  disabled={isEditing}
+                  className="flex-1 bg-rose-500 my-3 p-3 rounded-xl shadow-sm mr-2"
+                  onPress={() => onDownload(wallpaper.imageUrl)}
                 >
                   <Text
                     style={{ fontFamily: "Poppins_600SemiBold" }}
-                    className="text-rose-600 text-center"
+                    className="text-white text-center"
                   >
-                    {isEditing ? "Editing..." : "✏️ Edit"}
+                    💾 Download
                   </Text>
                 </TouchableOpacity>
-              )}
+
+                {onEditImage && (
+                  <TouchableOpacity
+                    className="flex-1 bg-gray-100 my-3 p-3 rounded-xl shadow-sm"
+                    onPress={() => setShowEditModal(true)}
+                    disabled={isEditing}
+                  >
+                    <Text
+                      style={{ fontFamily: "Poppins_600SemiBold" }}
+                      className="text-rose-600 text-center"
+                    >
+                      ✏️ Edit
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </View>
             </View>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      )}
 
       <EditModal
         visible={showEditModal}

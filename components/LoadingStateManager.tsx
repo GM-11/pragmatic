@@ -199,7 +199,7 @@ export default function LoadingStateManager({
         <View className="flex flex-row items-center mt-8 space-x-2">
           <Animated.View
             style={{ transform: [{ translateY: dot1TranslateY }] }}
-            className="w-3 h-3 bg-rose-300 rounded-full"
+            className="w-3 h-3 bg-rose-400 rounded-full"
           />
           <Animated.View
             style={{ transform: [{ translateY: dot2TranslateY }] }}
@@ -207,7 +207,7 @@ export default function LoadingStateManager({
           />
           <Animated.View
             style={{ transform: [{ translateY: dot3TranslateY }] }}
-            className="w-3 h-3 bg-rose-500 rounded-full"
+            className="w-3 h-3 bg-rose-400 rounded-full"
           />
         </View>
 

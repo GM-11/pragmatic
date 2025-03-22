@@ -223,14 +223,14 @@ export default function Index() {
             </View>
 
             <TouchableOpacity
-              className="bg-rose-600 p-4 rounded-xl w-full shadow-sm flex-row justify-center items-center space-x-2 mt-2"
+              className="bg-rose-600 p-4 rounded-xl w-full shadow-sm flex-row justify-center items-center flex mt-2"
               onPress={() => generateWallpaper(prompt)}
               disabled={loading}
             >
               <Ionicons name="sparkles" size={20} color="white" />
               <Text
                 style={{ fontFamily: "Poppins_600SemiBold" }}
-                className="text-white text-center"
+                className="text-white text-center ml-2"
               >
                 {loading ? "Creating..." : "Create Wallpaper"}
               </Text>

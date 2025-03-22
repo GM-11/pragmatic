@@ -114,6 +114,7 @@ export default function Gallery() {
             onSetAsWallpaper={handleDownload}
             onEditImage={handleEditImage}
             onDeleteWallpaper={handleDeleteWallpaper}
+            isEditing={isEditing}
           />
         ) : (
           <WallpaperGrid
