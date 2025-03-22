@@ -4,6 +4,7 @@
     "slug": "pragmatic",
     "version": "1.0.0",
     "orientation": "portrait",
+    "newArhictecture": true,
     "userInterfaceStyle": "light",
     "assetBundlePatterns": ["**/*"],
     "ios": {
