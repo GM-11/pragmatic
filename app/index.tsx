@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Alert,
   Text,
@@ -10,13 +10,15 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { Wallpaper } from "./types";
-import { useWallpapers } from "./hooks/useWallpapers";
-import { WallpaperPreview } from "./components/WallpaperPreview";
-import { generateWallpaperImage } from "./lib/wallpaperApi";
-import { createWallpaperObject } from "./lib/wallpaperApi";
+import { useWallpapers } from "../hooks/useWallpapers";
+import WallpaperPreview from "../components/WallpaperPreview";
+import {
+  generateWallpaperImage,
+  editWallpaperImage,
+  createWallpaperObject,
+} from "../lib/wallpaperApi";
 import { Ionicons } from "@expo/vector-icons";
-import { InfoModal } from "./components/InfoModal";
+import InfoModal from "../components/InfoModal";
 import * as MediaLibrary from "expo-media-library";
 import * as FileSystem from "expo-file-system";
 
@@ -26,34 +28,80 @@ export default function Index() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const { saveWallpaper } = useWallpapers();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [currentPrompt, setCurrentPrompt] = useState("");
 
-  const generateWallpaper = async () => {
-    if (!prompt.trim()) {
+  // Clear any existing timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  const generateWallpaper = async (promptText: string) => {
+    if (!promptText.trim()) {
       Alert.alert("Error", "Please enter a prompt");
       return;
+    }
+
+    // Clear existing preview and cancel any pending timeouts
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
 
     setLoading(true);
     try {
       // Generate the wallpaper image
-      const base64Image = await generateWallpaperImage(prompt);
+      const base64Image = await generateWallpaperImage(promptText);
 
-      // Set the preview image
+      // Set the preview image and current prompt
       setPreviewImage(base64Image);
+      setCurrentPrompt(promptText);
 
       // Create a wallpaper object
-      const newWallpaper = createWallpaperObject(prompt, base64Image);
+      const newWallpaper = createWallpaperObject(promptText, base64Image);
 
       // Save to local storage
       await saveWallpaper(newWallpaper);
 
-      setPrompt("");
+      if (promptText === prompt) {
+        setPrompt("");
+      }
     } catch (error) {
       console.error("Error generating wallpaper:", error);
       Alert.alert(
         "Error",
         "Failed to generate wallpaper. Please check your API key in the .env file."
       );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditImage = async (editInstructions: string) => {
+    // Use the specialized edit function instead of combining prompts manually
+    setLoading(true);
+    try {
+      const base64Image = await editWallpaperImage(
+        currentPrompt,
+        editInstructions
+      );
+
+      // Create a combined prompt for record keeping
+      const combinedPrompt = `${currentPrompt}, edited: ${editInstructions}`;
+
+      // Update the UI with the new image
+      setPreviewImage(base64Image);
+      setCurrentPrompt(combinedPrompt);
+
+      // Create and save the edited wallpaper
+      const newWallpaper = createWallpaperObject(combinedPrompt, base64Image);
+      await saveWallpaper(newWallpaper);
+    } catch (error) {
+      console.error("Error editing wallpaper:", error);
+      Alert.alert("Error", "Failed to edit the wallpaper.");
     } finally {
       setLoading(false);
     }
@@ -94,6 +142,11 @@ export default function Index() {
           }
 
           Alert.alert("Success", "Wallpaper saved to your gallery");
+
+          // Set a timeout to clear the preview after 3 seconds
+          timeoutRef.current = setTimeout(() => {
+            setPreviewImage(null);
+          }, 3000);
         } else {
           Alert.alert("Error", "Invalid image format");
         }
@@ -145,6 +198,8 @@ export default function Index() {
             imageUrl={previewImage}
             loading={loading}
             onSaveToGallery={handleSaveToGallery}
+            onEditImage={handleEditImage}
+            currentPrompt={currentPrompt}
           />
 
           {/* Input area */}
@@ -168,8 +223,8 @@ export default function Index() {
             </View>
 
             <TouchableOpacity
-              className="bg-rose-600 p-4 rounded-xl w-full shadow-sm flex-row justify-center items-center space-x-2"
-              onPress={generateWallpaper}
+              className="bg-rose-600 p-4 rounded-xl w-full shadow-sm flex-row justify-center items-center space-x-2 mt-2"
+              onPress={() => generateWallpaper(prompt)}
               disabled={loading}
             >
               <Ionicons name="sparkles" size={20} color="white" />

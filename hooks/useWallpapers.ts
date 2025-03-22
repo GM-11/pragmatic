@@ -2,19 +2,22 @@ import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Wallpaper } from "../types";
 
-export const useWallpapers = () => {
+export const WALLPAPERS_STORAGE_KEY = "wallpapers";
+
+export function useWallpapers() {
   const [wallpapers, setWallpapers] = useState<Wallpaper[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load saved wallpapers when component mounts
     loadWallpapers();
   }, []);
 
   const loadWallpapers = async () => {
-    setLoading(true);
     try {
-      const savedWallpapers = await AsyncStorage.getItem("wallpapers");
+      setLoading(true);
+      const savedWallpapers = await AsyncStorage.getItem(
+        WALLPAPERS_STORAGE_KEY
+      );
       if (savedWallpapers) {
         setWallpapers(JSON.parse(savedWallpapers));
       }
@@ -27,9 +30,12 @@ export const useWallpapers = () => {
 
   const saveWallpaper = async (wallpaper: Wallpaper) => {
     try {
-      const newWallpapers = [wallpaper, ...wallpapers];
-      await AsyncStorage.setItem("wallpapers", JSON.stringify(newWallpapers));
-      setWallpapers(newWallpapers);
+      const updatedWallpapers = [...wallpapers, wallpaper];
+      await AsyncStorage.setItem(
+        WALLPAPERS_STORAGE_KEY,
+        JSON.stringify(updatedWallpapers)
+      );
+      setWallpapers(updatedWallpapers);
       return true;
     } catch (error) {
       console.error("Error saving wallpaper:", error);
@@ -39,9 +45,14 @@ export const useWallpapers = () => {
 
   const deleteWallpaper = async (id: string) => {
     try {
-      const newWallpapers = wallpapers.filter((wp) => wp.id !== id);
-      await AsyncStorage.setItem("wallpapers", JSON.stringify(newWallpapers));
-      setWallpapers(newWallpapers);
+      const updatedWallpapers = wallpapers.filter(
+        (wallpaper) => wallpaper.id !== id
+      );
+      await AsyncStorage.setItem(
+        WALLPAPERS_STORAGE_KEY,
+        JSON.stringify(updatedWallpapers)
+      );
+      setWallpapers(updatedWallpapers);
       return true;
     } catch (error) {
       console.error("Error deleting wallpaper:", error);
@@ -52,8 +63,13 @@ export const useWallpapers = () => {
   return {
     wallpapers,
     loading,
+    loadWallpapers,
     saveWallpaper,
     deleteWallpaper,
-    refreshWallpapers: loadWallpapers,
   };
-};
+}
+
+// Add dummy default export for Expo Router
+export default function Wallpapers() {
+  return null;
+}

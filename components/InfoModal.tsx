@@ -16,7 +16,7 @@ interface InfoModalProps {
   onClose: () => void;
 }
 
-export function InfoModal({ visible, onClose }: InfoModalProps) {
+export default function InfoModal({ visible, onClose }: InfoModalProps) {
   return (
     <Modal
       animationType="slide"
@@ -88,28 +88,6 @@ export function InfoModal({ visible, onClose }: InfoModalProps) {
                   ...styles.sectionTitle,
                 }}
               >
-                Developer
-              </Text>
-              <Text
-                style={{
-                  fontFamily: "Poppins_400Regular",
-                  ...styles.paragraph,
-                }}
-              >
-                This app was developed as a demonstration project to showcase
-                the capabilities of AI-powered image generation in mobile
-                applications. It combines React Native, Expo, and modern UX
-                principles with Hugging Face's API services.
-              </Text>
-            </View>
-
-            <View style={styles.section}>
-              <Text
-                style={{
-                  fontFamily: "Poppins_600SemiBold",
-                  ...styles.sectionTitle,
-                }}
-              >
                 Usage Tips
               </Text>
               <Text
@@ -128,15 +106,13 @@ export function InfoModal({ visible, onClose }: InfoModalProps) {
             <TouchableOpacity
               style={styles.linkButton}
               onPress={() =>
-                Linking.openURL(
-                  "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0"
-                )
+                Linking.openURL("https://github.com/GM-11/pragmatic")
               }
             >
               <Text
                 style={{ fontFamily: "Poppins_600SemiBold", color: "#fff" }}
               >
-                Learn More About Stable Diffusion
+                Made By Gopal Mathur
               </Text>
             </TouchableOpacity>
           </ScrollView>

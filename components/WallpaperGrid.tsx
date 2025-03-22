@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, FlatList } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Wallpaper } from "../types";
-import { WallpaperTile } from "./WallpaperTile";
+import WallpaperTile from "./WallpaperTile";
 
 interface WallpaperGridProps {
   wallpapers: Wallpaper[];
@@ -10,7 +10,7 @@ interface WallpaperGridProps {
   onWallpaperDownload: (imageUrl: string) => void;
 }
 
-export function WallpaperGrid({
+export default function WallpaperGrid({
   wallpapers,
   onWallpaperPress,
   onWallpaperDownload,

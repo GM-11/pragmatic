@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,14 +6,17 @@ import {
   TouchableOpacity,
   Dimensions,
   ScrollView,
-  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import LoadingStateManager from "./LoadingStateManager";
+import EditModal from "./EditModal";
 
 interface WallpaperPreviewProps {
   imageUrl: string | null;
   loading: boolean;
   onSaveToGallery: () => void;
+  onEditImage: (editInstructions: string) => Promise<void>;
+  currentPrompt: string;
 }
 
 const { width } = Dimensions.get("window");
@@ -21,27 +24,27 @@ const ASPECT_RATIO = 1920 / 1080;
 const imageWidth = width * 0.85;
 const imageHeight = imageWidth * ASPECT_RATIO;
 
-export const WallpaperPreview = ({
+export default function WallpaperPreview({
   imageUrl,
   loading,
   onSaveToGallery,
-}: WallpaperPreviewProps) => {
+  onEditImage,
+  currentPrompt,
+}: WallpaperPreviewProps) {
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const handleEditSubmit = async (editInstructions: string) => {
+    setIsEditing(true);
+    await onEditImage(editInstructions);
+    setIsEditing(false);
+    setShowEditModal(false);
+  };
+
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-rose-50 rounded-3xl mx-2 shadow-inner">
-        <ActivityIndicator size="large" color="#e11d48" />
-        <Text
-          style={{ fontFamily: "Poppins_500Medium" }}
-          className="text-gray-700 text-center mt-4"
-        >
-          Creating your masterpiece...
-        </Text>
-        <Text
-          style={{ fontFamily: "Poppins_400Regular" }}
-          className="text-gray-500 text-center mt-2 text-xs px-8"
-        >
-          We're turning your words into art. This may take up to 30 seconds.
-        </Text>
+      <View className="flex-1 bg-rose-50 rounded-3xl mx-2 shadow-inner overflow-hidden">
+        <LoadingStateManager isLoading={loading} />
       </View>
     );
   }
@@ -105,38 +108,57 @@ export const WallpaperPreview = ({
   }
 
   return (
-    <ScrollView
-      className="flex-1"
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingBottom: 20 }}
-    >
-      <View className="items-center space-y-5 pt-2">
-        <View className="bg-gradient-to-b from-rose-50 to-white p-4 rounded-3xl overflow-hidden shadow-md">
-          <Image
-            source={{ uri: imageUrl }}
-            style={{ width: imageWidth, height: imageHeight, borderRadius: 16 }}
-            resizeMode="contain"
-          />
-        </View>
+    <>
+      <View className="flex-1 items-center">
+        <ScrollView
+          className="w-full"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 20, alignItems: "center" }}
+        >
+          <View className="items-center space-y-5 pt-2">
+            <View className="bg-gradient-to-b from-rose-50 to-white p-4 rounded-3xl overflow-hidden shadow-md">
+              <Image
+                source={{ uri: imageUrl }}
+                style={{
+                  width: imageWidth,
+                  height: imageHeight,
+                  borderRadius: 16,
+                }}
+                resizeMode="contain"
+              />
+            </View>
 
-        <View className="flex-row space-x-3 px-4 w-full">
-          <TouchableOpacity
-            className="flex-1 bg-rose-500 px-6 py-3 rounded-xl shadow-sm"
-            onPress={onSaveToGallery}
-          >
-            <Text
-              style={{ fontFamily: "Poppins_600SemiBold" }}
-              className="text-white text-center"
-            >
-              💾 Save to Gallery
-            </Text>
-          </TouchableOpacity>
+            <View className="flex-row space-x-3 px-4 w-full">
+              <TouchableOpacity
+                className="flex-1 bg-rose-500 px-6 py-3 rounded-xl shadow-sm"
+                onPress={onSaveToGallery}
+              >
+                <Text
+                  style={{ fontFamily: "Poppins_600SemiBold" }}
+                  className="text-white text-center"
+                >
+                  💾 Save to Gallery
+                </Text>
+              </TouchableOpacity>
 
-          <TouchableOpacity className="bg-gray-100 px-4 py-3 rounded-xl shadow-sm">
-            <Ionicons name="refresh-outline" size={22} color="#e11d48" />
-          </TouchableOpacity>
-        </View>
+              <TouchableOpacity
+                className="bg-gray-100 px-4 py-3 rounded-xl shadow-sm"
+                onPress={() => setShowEditModal(true)}
+                disabled={isEditing}
+              >
+                <Ionicons name="brush-outline" size={22} color="#e11d48" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
       </View>
-    </ScrollView>
+
+      <EditModal
+        visible={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        onSubmit={handleEditSubmit}
+        isLoading={isEditing}
+      />
+    </>
   );
-};
+}

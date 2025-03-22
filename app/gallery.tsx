@@ -7,18 +7,21 @@ import {
   Text,
   TouchableOpacity,
 } from "react-native";
-import { Wallpaper } from "./types";
-import { useWallpapers } from "./hooks/useWallpapers";
-import { downloadImage } from "./utils/fileUtils";
-import { WallpaperGrid } from "./components/WallpaperGrid";
-import { WallpaperDetail } from "./components/WallpaperDetail";
+import { Wallpaper } from "../types";
+import { useWallpapers } from "../hooks/useWallpapers";
+import { downloadImage } from "../utils/fileUtils";
+import { editWallpaperImage, createWallpaperObject } from "../lib/wallpaperApi";
+import WallpaperGrid from "../components/WallpaperGrid";
+import WallpaperDetail from "../components/WallpaperDetail";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function Gallery() {
-  const { wallpapers, loading } = useWallpapers();
+  const { wallpapers, loading, saveWallpaper, deleteWallpaper } =
+    useWallpapers();
   const [selectedWallpaper, setSelectedWallpaper] = useState<Wallpaper | null>(
     null
   );
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleDownload = async (imageUrl: string) => {
     try {
@@ -34,6 +37,47 @@ export default function Gallery() {
     } catch (error) {
       console.error("Error downloading wallpaper:", error);
       Alert.alert("Error", "Failed to download wallpaper");
+    }
+  };
+
+  const handleEditImage = async (
+    wallpaper: Wallpaper,
+    editInstructions: string
+  ) => {
+    setIsEditing(true);
+    try {
+      // Use the specialized edit function
+      const base64Image = await editWallpaperImage(
+        wallpaper.prompt,
+        editInstructions
+      );
+
+      // Create a combined prompt for record keeping
+      const combinedPrompt = `${wallpaper.prompt}, edited: ${editInstructions}`;
+
+      // Create a new wallpaper object
+      const newWallpaper = createWallpaperObject(combinedPrompt, base64Image);
+
+      // Save the new wallpaper
+      await saveWallpaper(newWallpaper);
+
+      // Select the new wallpaper
+      setSelectedWallpaper(newWallpaper);
+    } catch (error) {
+      console.error("Error editing wallpaper:", error);
+      Alert.alert("Error", "Failed to edit wallpaper");
+    } finally {
+      setIsEditing(false);
+    }
+  };
+
+  const handleDeleteWallpaper = async (id: string) => {
+    try {
+      await deleteWallpaper(id);
+      setSelectedWallpaper(null); // Return to grid view
+    } catch (error) {
+      console.error("Error deleting wallpaper:", error);
+      Alert.alert("Error", "Failed to delete wallpaper");
     }
   };
 
@@ -68,6 +112,8 @@ export default function Gallery() {
             onBack={() => setSelectedWallpaper(null)}
             onDownload={handleDownload}
             onSetAsWallpaper={handleDownload}
+            onEditImage={handleEditImage}
+            onDeleteWallpaper={handleDeleteWallpaper}
           />
         ) : (
           <WallpaperGrid

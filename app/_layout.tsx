@@ -1,6 +1,6 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { View } from "react-native";
+import { View, useWindowDimensions } from "react-native";
 import { useFonts } from "expo-font";
 import {
   Poppins_400Regular,
