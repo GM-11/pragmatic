@@ -21,10 +21,18 @@ export default function Gallery() {
   );
 
   const handleDownload = async (imageUrl: string) => {
-    const downloadedUri = await downloadImage(imageUrl);
-    if (downloadedUri) {
-      Alert.alert("Success", `Wallpaper saved to: ${downloadedUri}`);
-    } else {
+    try {
+      const downloadedUri = await downloadImage(imageUrl);
+      if (downloadedUri) {
+        Alert.alert(
+          "Success",
+          "Wallpaper saved to your gallery in the 'Pragmatic' album."
+        );
+      } else {
+        Alert.alert("Error", "Failed to download wallpaper");
+      }
+    } catch (error) {
+      console.error("Error downloading wallpaper:", error);
       Alert.alert("Error", "Failed to download wallpaper");
     }
   };

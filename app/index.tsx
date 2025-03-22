@@ -16,11 +16,15 @@ import { WallpaperPreview } from "./components/WallpaperPreview";
 import { generateWallpaperImage } from "./lib/wallpaperApi";
 import { createWallpaperObject } from "./lib/wallpaperApi";
 import { Ionicons } from "@expo/vector-icons";
+import { InfoModal } from "./components/InfoModal";
+import * as MediaLibrary from "expo-media-library";
+import * as FileSystem from "expo-file-system";
 
 export default function Index() {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [showInfoModal, setShowInfoModal] = useState(false);
   const { saveWallpaper } = useWallpapers();
 
   const generateWallpaper = async () => {
@@ -57,14 +61,58 @@ export default function Index() {
 
   const handleSaveToGallery = async () => {
     if (previewImage) {
-      Alert.alert("Success", "Wallpaper saved to your gallery");
-      setPreviewImage(null);
+      try {
+        // Request permission to access media library
+        const { status } = await MediaLibrary.requestPermissionsAsync();
+
+        if (status !== "granted") {
+          Alert.alert(
+            "Permission Denied",
+            "Permission to access media library was denied"
+          );
+          return;
+        }
+
+        // For base64 images, write to file first
+        if (previewImage.startsWith("data:")) {
+          const base64Data = previewImage.split(",")[1];
+          const fileUri =
+            FileSystem.documentDirectory + `wallpaper_${Date.now()}.jpg`;
+
+          await FileSystem.writeAsStringAsync(fileUri, base64Data, {
+            encoding: FileSystem.EncodingType.Base64,
+          });
+
+          // Save the file to the media library
+          const asset = await MediaLibrary.createAssetAsync(fileUri);
+          const album = await MediaLibrary.getAlbumAsync("Pragmatic");
+
+          if (album === null) {
+            await MediaLibrary.createAlbumAsync("Pragmatic", asset, false);
+          } else {
+            await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+          }
+
+          Alert.alert("Success", "Wallpaper saved to your gallery");
+        } else {
+          Alert.alert("Error", "Invalid image format");
+        }
+      } catch (error) {
+        console.error("Error saving to gallery:", error);
+        Alert.alert("Error", "Failed to save wallpaper to gallery");
+      }
     }
   };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+
+      {/* Info Modal */}
+      <InfoModal
+        visible={showInfoModal}
+        onClose={() => setShowInfoModal(false)}
+      />
 
       {/* App header */}
       <View className="flex-row items-center justify-between px-5 pt-2 pb-4">
@@ -74,7 +122,10 @@ export default function Index() {
         >
           Pragmatic
         </Text>
-        <TouchableOpacity className="bg-rose-50 p-2 rounded-full">
+        <TouchableOpacity
+          className="bg-rose-50 p-2 rounded-full"
+          onPress={() => setShowInfoModal(true)}
+        >
           <Ionicons
             name="information-circle-outline"
             size={24}
