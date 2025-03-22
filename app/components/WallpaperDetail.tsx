@@ -44,19 +44,28 @@ export function WallpaperDetail({
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="items-center mb-6">
-          <View className="bg-gray-50 p-3 rounded-xl overflow-hidden shadow-md border border-gray-100">
+          <View className="bg-gradient-to-b from-rose-50 to-white p-3 rounded-3xl overflow-hidden shadow-md mb-4">
             <Image
               source={{ uri: wallpaper.imageUrl }}
               style={{
                 width: width * 0.9,
                 height: width * 0.9 * (1920 / 1080),
+                borderRadius: 16,
               }}
               resizeMode="contain"
             />
           </View>
-          <View className="w-full px-4 mt-4 space-y-4">
-            <Text className="text-gray-800">{wallpaper.prompt}</Text>
-            <Text className="text-gray-500 text-xs">
+          <View className="w-full px-4 space-y-4">
+            <Text
+              style={{ fontFamily: "Poppins_500Medium" }}
+              className="text-gray-800"
+            >
+              {wallpaper.prompt}
+            </Text>
+            <Text
+              style={{ fontFamily: "Poppins_400Regular" }}
+              className="text-gray-500 text-xs"
+            >
               Created on {new Date(wallpaper.createdAt).toLocaleString()}
             </Text>
             <View className="flex-row space-x-3">
@@ -64,7 +73,10 @@ export function WallpaperDetail({
                 className="flex-1 bg-rose-500 p-3 rounded-xl shadow-sm"
                 onPress={() => onSetAsWallpaper(wallpaper.imageUrl)}
               >
-                <Text className="text-white text-center font-medium">
+                <Text
+                  style={{ fontFamily: "Poppins_600SemiBold" }}
+                  className="text-white text-center"
+                >
                   📱 Set as Wallpaper
                 </Text>
               </TouchableOpacity>
@@ -72,7 +84,10 @@ export function WallpaperDetail({
                 className="flex-1 bg-gray-800 p-3 rounded-xl shadow-sm"
                 onPress={() => onDownload(wallpaper.imageUrl)}
               >
-                <Text className="text-white text-center font-medium">
+                <Text
+                  style={{ fontFamily: "Poppins_600SemiBold" }}
+                  className="text-white text-center"
+                >
                   💾 Download
                 </Text>
               </TouchableOpacity>

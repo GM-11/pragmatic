@@ -23,12 +23,13 @@ export function WallpaperTile({
       <View className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
         <Image
           source={{ uri: wallpaper.imageUrl }}
-          style={{ width: tileSize, height: imageHeight }}
+          style={{ width: tileSize, height: imageHeight, borderRadius: 8 }}
           resizeMode="cover"
         />
         <View className="p-2">
           <View className="flex-row items-center justify-between">
             <Text
+              style={{ fontFamily: "Poppins_400Regular" }}
               className="text-gray-700 text-xs flex-1 mr-2"
               numberOfLines={1}
             >

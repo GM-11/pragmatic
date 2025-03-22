@@ -68,7 +68,12 @@ export default function Index() {
 
       {/* App header */}
       <View className="flex-row items-center justify-between px-5 pt-2 pb-4">
-        <Text className="text-2xl font-bold text-rose-600">Pragmatic</Text>
+        <Text
+          style={{ fontFamily: "Poppins_700Bold" }}
+          className="text-2xl text-rose-600"
+        >
+          Pragmatic
+        </Text>
         <TouchableOpacity className="bg-rose-50 p-2 rounded-full">
           <Ionicons
             name="information-circle-outline"
@@ -106,6 +111,7 @@ export default function Index() {
                   textAlignVertical: "top",
                   minHeight: 100,
                   maxHeight: 150,
+                  fontFamily: "Poppins_400Regular",
                 }}
               />
             </View>
@@ -116,7 +122,10 @@ export default function Index() {
               disabled={loading}
             >
               <Ionicons name="sparkles" size={20} color="white" />
-              <Text className="text-white text-center font-semibold">
+              <Text
+                style={{ fontFamily: "Poppins_600SemiBold" }}
+                className="text-white text-center"
+              >
                 {loading ? "Creating..." : "Create Wallpaper"}
               </Text>
             </TouchableOpacity>

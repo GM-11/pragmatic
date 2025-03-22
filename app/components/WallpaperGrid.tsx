@@ -17,12 +17,18 @@ export function WallpaperGrid({
 }: WallpaperGridProps) {
   if (wallpapers.length === 0) {
     return (
-      <View className="items-center justify-center flex-1">
+      <View className="items-center justify-center flex-1 bg-gradient-to-b from-rose-50 to-white rounded-3xl mx-2 p-6">
         <Ionicons name="images-outline" size={80} color="#fca5a5" />
-        <Text className="text-gray-700 text-center py-4 text-lg">
+        <Text
+          style={{ fontFamily: "Poppins_600SemiBold" }}
+          className="text-gray-700 text-center py-4 text-lg"
+        >
           No wallpapers in your gallery yet
         </Text>
-        <Text className="text-gray-500 text-center px-10">
+        <Text
+          style={{ fontFamily: "Poppins_400Regular" }}
+          className="text-gray-500 text-center px-10"
+        >
           Head to the Create tab to generate your first wallpaper
         </Text>
       </View>

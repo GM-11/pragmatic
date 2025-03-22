@@ -1,30 +1,57 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { View } from "react-native";
+import { View, Text } from "react-native";
+import { useFonts } from "expo-font";
+import {
+  Poppins_400Regular,
+  Poppins_500Medium,
+  Poppins_600SemiBold,
+  Poppins_700Bold,
+} from "@expo-google-fonts/poppins";
+import { useCallback, useEffect } from "react";
+import * as SplashScreen from "expo-splash-screen";
 
 // Import your global CSS file
 import "../global.css";
 
+// Keep the splash screen visible while we fetch resources
+SplashScreen.preventAutoHideAsync();
+
 export default function RootLayout() {
+  const [fontsLoaded, fontError] = useFonts({
+    Poppins_400Regular,
+    Poppins_500Medium,
+    Poppins_600SemiBold,
+    Poppins_700Bold,
+  });
+
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded || fontError) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontError]);
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
   return (
     <Tabs
       screenOptions={{
         tabBarStyle: {
           backgroundColor: "#ffffff",
           borderTopColor: "#e5e7eb",
-          paddingTop: 5,
           height: 60,
           elevation: 0,
           shadowOpacity: 0.1,
         },
         tabBarActiveTintColor: "#e11d48", // rose-600
         tabBarInactiveTintColor: "#9ca3af", // gray-400
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: "500",
-          marginBottom: 5,
-        },
+        tabBarShowLabel: false, // Hide the tab labels
         headerShown: false,
+        tabBarItemStyle: {
+          paddingVertical: 10,
+        },
       }}
     >
       <Tabs.Screen
@@ -32,7 +59,7 @@ export default function RootLayout() {
         options={{
           title: "Create",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="create-outline" size={size} color={color} />
+            <Ionicons name="create-outline" size={26} color={color} />
           ),
         }}
       />
@@ -41,7 +68,7 @@ export default function RootLayout() {
         options={{
           title: "Gallery",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="images-outline" size={size} color={color} />
+            <Ionicons name="images-outline" size={26} color={color} />
           ),
         }}
       />
