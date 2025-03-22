@@ -70,18 +70,7 @@ export function WallpaperDetail({
             </Text>
             <View className="flex-row space-x-3">
               <TouchableOpacity
-                className="flex-1 bg-rose-500 p-3 rounded-xl shadow-sm"
-                onPress={() => onSetAsWallpaper(wallpaper.imageUrl)}
-              >
-                <Text
-                  style={{ fontFamily: "Poppins_600SemiBold" }}
-                  className="text-white text-center"
-                >
-                  📱 Set as Wallpaper
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                className="flex-1 bg-gray-800 p-3 rounded-xl shadow-sm"
+                className="flex-1 bg-rose-500 my-3 p-3 rounded-xl shadow-sm"
                 onPress={() => onDownload(wallpaper.imageUrl)}
               >
                 <Text
