@@ -21,9 +21,9 @@ interface GenerateParams {
 export const generateWallpaperImage = async (
   prompt: string
 ): Promise<string> => {
+  const model = "black-forest-labs/FLUX.1-dev";
   // Using Hugging Face's Stable Diffusion API
-  const modelUrl =
-    "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-large";
+  const modelUrl = `https://api-inference.huggingface.co/models/${model}`;
 
   // Get API key from Expo Constants instead of process.env
   const apiKey = process.env.EXPO_PUBLIC_HUGGINGFACE_API_KEY;
