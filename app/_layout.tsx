@@ -1,6 +1,6 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import { useFonts } from "expo-font";
 import {
   Poppins_400Regular,
@@ -31,47 +31,56 @@ export default function RootLayout() {
     }
   }, [fontsLoaded, fontError]);
 
+  // Call onLayoutRootView when the layout is ready
+  useEffect(() => {
+    if (fontsLoaded || fontError) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontError]);
+
   if (!fontsLoaded && !fontError) {
     return null;
   }
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarStyle: {
-          backgroundColor: "#ffffff",
-          borderTopColor: "#e5e7eb",
-          height: 60,
-          elevation: 0,
-          shadowOpacity: 0.1,
-        },
-        tabBarActiveTintColor: "#e11d48", // rose-600
-        tabBarInactiveTintColor: "#9ca3af", // gray-400
-        tabBarShowLabel: false, // Hide the tab labels
-        headerShown: false,
-        tabBarItemStyle: {
-          paddingVertical: 10,
-        },
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Create",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="create-outline" size={26} color={color} />
-          ),
+    <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+      <Tabs
+        screenOptions={{
+          tabBarStyle: {
+            backgroundColor: "#ffffff",
+            borderTopColor: "#e5e7eb",
+            height: 60,
+            elevation: 0,
+            shadowOpacity: 0.1,
+          },
+          tabBarActiveTintColor: "#e11d48", // rose-600
+          tabBarInactiveTintColor: "#9ca3af", // gray-400
+          tabBarShowLabel: false, // Hide the tab labels
+          headerShown: false,
+          tabBarItemStyle: {
+            paddingVertical: 10,
+          },
         }}
-      />
-      <Tabs.Screen
-        name="gallery"
-        options={{
-          title: "Gallery",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="images-outline" size={26} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
+      >
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: "Create",
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="create-outline" size={26} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="gallery"
+          options={{
+            title: "Gallery",
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="images-outline" size={26} color={color} />
+            ),
+          }}
+        />
+      </Tabs>
+    </View>
   );
 }
