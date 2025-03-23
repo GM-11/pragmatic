@@ -148,7 +148,7 @@ function Dropdown<T>({
 
 export default function Settings() {
   const { settings, updateSettings, resetSettings, loading } = useSettings();
-  const { user } = useAuthContext();
+  const { user, signOut } = useAuthContext();
   const [isResetting, setIsResetting] = useState(false);
 
   // Model options
@@ -268,6 +268,10 @@ export default function Settings() {
         >
           Settings
         </Text>
+
+        <TouchableOpacity onPress={signOut}>
+          <Ionicons name="log-out-outline" size={24} color="#e11d48" />
+        </TouchableOpacity>
       </View>
 
       <ScrollView className="flex-1 px-5">
