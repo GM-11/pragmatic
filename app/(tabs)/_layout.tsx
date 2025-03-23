@@ -49,11 +49,7 @@ export default function TabLayout() {
         options={{
           title: "Settings",
           tabBarIcon: ({ color }) => (
-            <Ionicons
-              name={isAuthenticated ? "person" : "person-outline"}
-              size={26}
-              color={color}
-            />
+            <Ionicons name="person-outline" size={26} color={color} />
           ),
         }}
       />
