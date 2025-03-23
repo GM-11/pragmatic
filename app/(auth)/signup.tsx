@@ -20,8 +20,27 @@ export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [isEmailFocused, setIsEmailFocused] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
-  const { signUp, loading, error } = useAuthContext();
+  const { signUp, signInWithGoogle, signInWithGithub, loading, error } =
+    useAuthContext();
   const router = useRouter();
+
+  const handleGoogleSignIn = async () => {
+    try {
+      await signInWithGoogle();
+    } catch (err) {
+      const error = err as AuthError;
+      Alert.alert("Error", error.message || "Failed to sign in with Google");
+    }
+  };
+
+  const handleGithubSignIn = async () => {
+    try {
+      await signInWithGithub();
+    } catch (err) {
+      const error = err as AuthError;
+      Alert.alert("Error", error.message || "Failed to sign in with GitHub");
+    }
+  };
 
   const handleSignUp = async () => {
     if (!email || !password) {
@@ -207,8 +226,14 @@ export default function SignUp() {
                 shadowRadius: 3,
                 elevation: 2,
               }}
+              onPress={handleGoogleSignIn}
+              disabled={loading}
             >
-              <Ionicons name="logo-google" size={24} color="#DB4437" />
+              {loading ? (
+                <ActivityIndicator color="#DB4437" size="small" />
+              ) : (
+                <Ionicons name="logo-google" size={24} color="#DB4437" />
+              )}
             </TouchableOpacity>
             <TouchableOpacity
               className="w-14 h-14 bg-white rounded-full items-center justify-center shadow-sm border border-gray-100"
@@ -219,8 +244,14 @@ export default function SignUp() {
                 shadowRadius: 3,
                 elevation: 2,
               }}
+              onPress={handleGithubSignIn}
+              disabled={loading}
             >
-              <Ionicons name="logo-github" size={24} color="#000000" />
+              {loading ? (
+                <ActivityIndicator color="#000000" size="small" />
+              ) : (
+                <Ionicons name="logo-github" size={24} color="#000000" />
+              )}
             </TouchableOpacity>
           </View>
 

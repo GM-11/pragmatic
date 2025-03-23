@@ -8,7 +8,10 @@ interface AuthContextType {
   isProSubscriber: boolean;
   loading: boolean;
   error: string | null;
+  provider?: "email" | "google" | "github";
   signInWithEmail: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
+  signInWithGithub: () => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   upgradeToProSubscription: () => Promise<void>;

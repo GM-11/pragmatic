@@ -52,6 +52,40 @@ app/
 ## Environment Variables
 
 - `EXPO_PUBLIC_HUGGINGFACE_API_KEY`: Your Hugging Face API key for Stable Diffusion
+- `EXPO_PUBLIC_SUPABASE_URL`: Your Supabase project URL
+- `EXPO_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anonymous key
+
+## Authentication Setup
+
+1. Create a Supabase project at [supabase.com](https://supabase.com)
+2. Get your project URL and anon key from the project settings
+3. Enable Google Authentication:
+
+   - Go to Authentication > Providers > Google
+   - Enable Google provider
+   - Create a new project in [Google Cloud Console](https://console.cloud.google.com)
+   - Configure OAuth consent screen
+   - Create OAuth 2.0 Client ID
+   - Add authorized redirect URI: `[YOUR_SUPABASE_URL]/auth/v1/callback`
+   - Copy Client ID and Client Secret to Supabase Google provider settings
+
+4. Enable GitHub Authentication:
+
+   - Go to Authentication > Providers > GitHub
+   - Enable GitHub provider
+   - Create a new OAuth App in [GitHub Developer Settings](https://github.com/settings/developers)
+   - Set Homepage URL to your app's URL
+   - Set Authorization callback URL: `[YOUR_SUPABASE_URL]/auth/v1/callback`
+   - Copy Client ID and Client Secret to Supabase GitHub provider settings
+
+5. Configure App URL Scheme:
+   - Open app.json and add your URL scheme:
+     ```json
+     "expo": {
+       "scheme": "wallpaper-app"
+     }
+     ```
+   - Add the URL scheme to your OAuth provider settings
 
 ## License
 

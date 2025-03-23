@@ -109,14 +109,37 @@ export const useAuth = () => {
     }
   };
 
+  const insertUserData = async (email: string) => {
+    try {
+      const { error } = await supabase.from("users").upsert(
+        {
+          email,
+          subscribed: false,
+        },
+        {
+          onConflict: "email",
+        }
+      );
+      if (error) throw error;
+    } catch (error) {
+      console.error("Error inserting user data:", error);
+      throw error;
+    }
+  };
+
   const signUp = async (email: string, password: string) => {
     try {
       setAuthState((prev) => ({ ...prev, loading: true, error: null }));
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
       if (error) throw error;
+
+      if (data.user) {
+        await insertUserData(data.user.email!);
+      }
+
       setAuthState((prev) => ({ ...prev, loading: false }));
     } catch (error) {
       console.error("Error signing up:", error);
@@ -165,10 +188,88 @@ export const useAuth = () => {
       throw error;
     }
   };
+  const signInWithGoogle = async () => {
+    try {
+      setAuthState((prev) => ({ ...prev, loading: true, error: null }));
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: "pragmatic://",
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
+        },
+      });
+      if (error) throw error;
+
+      // Listen for auth state change after OAuth redirect
+      const authListener = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          if (event === "SIGNED_IN" && session?.user?.email) {
+            await insertUserData(session.user.email);
+            setAuthState((prev) => ({
+              ...prev,
+              provider: "google",
+              loading: false,
+            }));
+            authListener.data.subscription.unsubscribe();
+          }
+        }
+      );
+    } catch (error) {
+      console.error("Error signing in with Google:", error);
+      setAuthState((prev) => ({
+        ...prev,
+        loading: false,
+        error: "Failed to sign in with Google",
+      }));
+      throw error;
+    }
+  };
+
+  const signInWithGithub = async () => {
+    try {
+      setAuthState((prev) => ({ ...prev, loading: true, error: null }));
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "github",
+        options: {
+          redirectTo: "pragmatic://",
+          scopes: "user:email",
+        },
+      });
+      if (error) throw error;
+
+      // Listen for auth state change after OAuth redirect
+      const authListener = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          if (event === "SIGNED_IN" && session?.user?.email) {
+            await insertUserData(session.user.email);
+            setAuthState((prev) => ({
+              ...prev,
+              provider: "github",
+              loading: false,
+            }));
+            authListener.data.subscription.unsubscribe();
+          }
+        }
+      );
+    } catch (error) {
+      console.error("Error signing in with GitHub:", error);
+      setAuthState((prev) => ({
+        ...prev,
+        loading: false,
+        error: "Failed to sign in with GitHub",
+      }));
+      throw error;
+    }
+  };
 
   return {
     ...authState,
     signInWithEmail,
+    signInWithGoogle,
+    signInWithGithub,
     signUp,
     signOut,
     upgradeToProSubscription,
