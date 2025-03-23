@@ -1,6 +1,5 @@
-import { Tabs } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import { View, useWindowDimensions } from "react-native";
+import { Stack } from "expo-router";
+import { View, StatusBar } from "react-native";
 import { useFonts } from "expo-font";
 import {
   Poppins_400Regular,
@@ -10,8 +9,9 @@ import {
 } from "@expo-google-fonts/poppins";
 import { useCallback, useEffect } from "react";
 import * as SplashScreen from "expo-splash-screen";
-
-// Import your global CSS file
+import { ThemeProvider, useTheme } from "../hooks/useTheme";
+import { AuthProvider, useAuthContext } from "../contexts/AuthContext";
+import { Redirect } from "expo-router";
 import "../global.css";
 
 // Keep the splash screen visible while we fetch resources
@@ -31,7 +31,6 @@ export default function RootLayout() {
     }
   }, [fontsLoaded, fontError]);
 
-  // Call onLayoutRootView when the layout is ready
   useEffect(() => {
     if (fontsLoaded || fontError) {
       SplashScreen.hideAsync();
@@ -43,44 +42,47 @@ export default function RootLayout() {
   }
 
   return (
-    <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-      <Tabs
+    <ThemeProvider>
+      <AuthProvider>
+        <RootLayoutContent onLayoutRootView={onLayoutRootView} />
+      </AuthProvider>
+    </ThemeProvider>
+  );
+}
+
+function RootLayoutContent({
+  onLayoutRootView,
+}: {
+  onLayoutRootView: () => void;
+}) {
+  const { colors } = useTheme();
+  const { isAuthenticated } = useAuthContext();
+
+  return (
+    <View
+      style={{ flex: 1, backgroundColor: colors.background }}
+      onLayout={onLayoutRootView}
+    >
+      <StatusBar
+        barStyle={colors.statusBar}
+        backgroundColor={colors.background}
+      />
+      <Stack
         screenOptions={{
-          tabBarStyle: {
-            backgroundColor: "#ffffff",
-            borderTopColor: "#e5e7eb",
-            height: 60,
-            elevation: 0,
-            shadowOpacity: 0.1,
-          },
-          tabBarActiveTintColor: "#e11d48", // rose-600
-          tabBarInactiveTintColor: "#9ca3af", // gray-400
-          tabBarShowLabel: false, // Hide the tab labels
           headerShown: false,
-          tabBarItemStyle: {
-            paddingVertical: 10,
-          },
+          contentStyle: { backgroundColor: colors.background },
         }}
       >
-        <Tabs.Screen
-          name="index"
-          options={{
-            title: "Create",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="create-outline" size={26} color={color} />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="gallery"
-          options={{
-            title: "Gallery",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="images-outline" size={26} color={color} />
-            ),
-          }}
-        />
-      </Tabs>
+        {/* Redirect based on authentication status */}
+        <Stack.Screen name="index" redirect={true} />
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(tabs)" />
+      </Stack>
+      {isAuthenticated ? (
+        <Redirect href="/(tabs)" />
+      ) : (
+        <Redirect href="/(auth)" />
+      )}
     </View>
   );
 }
