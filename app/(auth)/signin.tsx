@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   Alert,
   SafeAreaView,
+  ActivityIndicator,
+  Keyboard,
 } from "react-native";
 import { useRouter, Link } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -15,10 +17,23 @@ import { AuthError } from "@supabase/supabase-js";
 export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isEmailFocused, setIsEmailFocused] = useState(false);
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const { signInWithEmail, loading, error } = useAuthContext();
   const router = useRouter();
 
   const handleSignIn = async () => {
+    if (!email || !password) {
+      Alert.alert("Error", "Please fill in all fields");
+      return;
+    }
+    if (!email.includes("@")) {
+      Alert.alert("Error", "Please enter a valid email address");
+      return;
+    }
+
+    Keyboard.dismiss();
     try {
       await signInWithEmail(email, password);
       router.replace("/");
@@ -29,55 +44,186 @@ export default function SignIn() {
   };
 
   return (
-    <SafeAreaView className="flex-1">
+    <SafeAreaView className="flex-1 bg-white">
       <View className="flex-1 px-6 justify-center">
-        <View className="mb-8">
-          <Text className="text-3xl text-rose-600 text-center font-bold mb-2">
+        <View className="items-center mb-12">
+          <View className="w-20 h-20 bg-rose-600 rounded-2xl items-center justify-center mb-4 shadow-lg">
+            <Ionicons name="image" size={40} color="white" />
+          </View>
+          <Text
+            className="text-4xl text-gray-800 text-center mb-3"
+            style={{ fontFamily: "Poppins_700Bold" }}
+          >
             Welcome Back
           </Text>
-          <Text className="text-gray-500 text-center">
-            Sign in to continue to Pragmatic
+          <Text
+            className="text-gray-500 text-center text-base max-w-[280px]"
+            style={{ fontFamily: "Poppins_400Regular" }}
+          >
+            Sign in to continue generating beautiful wallpapers
           </Text>
         </View>
 
-        <View className="space-y-4">
-          <TextInput
-            className="bg-gray-50 p-4 rounded-xl border border-gray-200"
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            placeholderTextColor="#9ca3af"
-          />
+        <View className="space-y-6">
+          <View className="shadow-sm mb-6">
+            <View
+              className={`flex-row items-center bg-white rounded-2xl border ${
+                isEmailFocused ? "border-rose-500" : "border-gray-100"
+              }`}
+              style={{
+                shadowColor: isEmailFocused ? "#f43f5e" : "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
+                elevation: 2,
+              }}
+            >
+              <View className="p-4">
+                <Ionicons
+                  name="mail-outline"
+                  size={22}
+                  color={isEmailFocused ? "#f43f5e" : "#6b7280"}
+                />
+              </View>
+              <TextInput
+                className="flex-1 p-4 text-base text-gray-800"
+                style={{ fontFamily: "Poppins_400Regular" }}
+                placeholder="Email"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                placeholderTextColor="#9ca3af"
+                onFocus={() => setIsEmailFocused(true)}
+                onBlur={() => setIsEmailFocused(false)}
+              />
+            </View>
+          </View>
 
-          <TextInput
-            className="bg-gray-50 p-4 rounded-xl border border-gray-200"
-            placeholder="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            placeholderTextColor="#9ca3af"
-          />
+          <View className="shadow-sm mb-6">
+            <View
+              className={`flex-row items-center bg-white rounded-2xl border ${
+                isPasswordFocused ? "border-rose-500" : "border-gray-100"
+              }`}
+              style={{
+                shadowColor: isPasswordFocused ? "#f43f5e" : "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
+                elevation: 2,
+              }}
+            >
+              <View className="p-4">
+                <Ionicons
+                  name="lock-closed-outline"
+                  size={22}
+                  color={isPasswordFocused ? "#f43f5e" : "#6b7280"}
+                />
+              </View>
+              <TextInput
+                className="flex-1 p-4 text-base text-gray-800"
+                style={{ fontFamily: "Poppins_400Regular" }}
+                placeholder="Password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                placeholderTextColor="#9ca3af"
+                onFocus={() => setIsPasswordFocused(true)}
+                onBlur={() => setIsPasswordFocused(false)}
+              />
+              <TouchableOpacity
+                className="p-4"
+                onPress={() => setShowPassword(!showPassword)}
+              >
+                <Ionicons
+                  name={showPassword ? "eye-off-outline" : "eye-outline"}
+                  size={22}
+                  color={isPasswordFocused ? "#f43f5e" : "#6b7280"}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
 
           {error && (
             <Text className="text-red-500 text-sm text-center">{error}</Text>
           )}
 
           <TouchableOpacity
-            className="bg-rose-600 p-4 rounded-xl items-center"
+            className="shadow-lg"
             onPress={handleSignIn}
             disabled={loading}
+            style={{
+              shadowColor: "#f43f5e",
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3,
+              shadowRadius: 8,
+              elevation: 5,
+            }}
           >
-            <Text className="text-white font-semibold text-lg">
-              {loading ? "Signing in..." : "Sign In"}
-            </Text>
+            <View
+              className={`p-4 rounded-2xl items-center ${
+                loading ? "bg-rose-400" : "bg-rose-600"
+              }`}
+            >
+              {loading ? (
+                <ActivityIndicator color="white" size="small" />
+              ) : (
+                <Text
+                  className="text-white text-lg"
+                  style={{ fontFamily: "Poppins_600SemiBold" }}
+                >
+                  Sign In
+                </Text>
+              )}
+            </View>
           </TouchableOpacity>
 
+          <View className="flex-row items-center space-x-4 py-6">
+            <View className="flex-1 h-[1px] bg-gray-200" />
+            <Text
+              className="text-gray-400 text-sm mx-2"
+              style={{ fontFamily: "Poppins_400Regular" }}
+            >
+              or continue with
+            </Text>
+            <View className="flex-1 h-[1px] bg-gray-200" />
+          </View>
+
+          <View className="flex-row justify-center w-full space-x-6">
+            <TouchableOpacity
+              className="w-14 h-14 bg-white rounded-full mr-3 items-center justify-center shadow-sm border border-gray-100"
+              style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 3,
+                elevation: 2,
+              }}
+            >
+              <Ionicons name="logo-google" size={24} color="#DB4437" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="w-14 h-14 bg-white rounded-full items-center justify-center shadow-sm border border-gray-100"
+              style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 3,
+                elevation: 2,
+              }}
+            >
+              <Ionicons name="logo-github" size={24} color="#000000" />
+            </TouchableOpacity>
+          </View>
+
           <Link href="/(auth)/signup" asChild>
-            <TouchableOpacity className="items-center py-4">
-              <Text className="text-rose-600">
-                Don't have an account? Sign Up
+            <TouchableOpacity className="items-center py-6">
+              <Text
+                className="text-gray-600 text-base"
+                style={{ fontFamily: "Poppins_400Regular" }}
+              >
+                Don't have an account?{" "}
+                <Text className="text-rose-600 font-semibold">Sign Up</Text>
               </Text>
             </TouchableOpacity>
           </Link>
