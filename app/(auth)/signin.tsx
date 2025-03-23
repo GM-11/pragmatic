@@ -36,7 +36,7 @@ export default function SignIn() {
     Keyboard.dismiss();
     try {
       await signInWithEmail(email, password);
-      router.replace("/");
+      // router.replace("/");
     } catch (err) {
       const error = err as AuthError;
       Alert.alert("Error", error.message || "An error occurred");

@@ -9,6 +9,7 @@ interface AuthState {
   isProSubscriber: boolean;
   loading: boolean;
   error: string | null;
+  provider?: "email" | "google" | "github";
 }
 
 export const useAuth = () => {
