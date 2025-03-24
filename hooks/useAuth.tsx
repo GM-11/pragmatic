@@ -93,11 +93,20 @@ export const useAuth = () => {
   const signInWithEmail = async (email: string, password: string) => {
     try {
       setAuthState((prev) => ({ ...prev, loading: true, error: null }));
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       if (error) throw error;
+
+      if (data.user) {
+        setAuthState((prev) => ({
+          ...prev,
+          loading: false,
+          isAuthenticated: true,
+          user: data.user,
+        }));
+      }
     } catch (error) {
       console.error("Error signing in:", error);
       setAuthState((prev) => ({
@@ -114,7 +123,7 @@ export const useAuth = () => {
       const { error } = await supabase.from("users").upsert(
         {
           email,
-          subscribed: false,
+          subscribed: true, // Setting subscribed to true for pro users
         },
         {
           onConflict: "email",
@@ -137,10 +146,13 @@ export const useAuth = () => {
       if (error) throw error;
 
       if (data.user) {
-        await insertUserData(data.user.email!);
+        setAuthState((prev) => ({
+          ...prev,
+          loading: false,
+          isAuthenticated: true,
+          user: data.user,
+        }));
       }
-
-      setAuthState((prev) => ({ ...prev, loading: false }));
     } catch (error) {
       console.error("Error signing up:", error);
       setAuthState((prev) => ({
@@ -171,8 +183,15 @@ export const useAuth = () => {
   const upgradeToProSubscription = async () => {
     try {
       setAuthState((prev) => ({ ...prev, loading: true, error: null }));
+
       // In a real app, this would interact with a payment system
       await AsyncStorage.setItem("@pro_status", "true");
+
+      // Only add user data to database when upgrading to pro
+      if (authState.user?.email) {
+        await insertUserData(authState.user.email);
+      }
+
       setAuthState((prev) => ({
         ...prev,
         isProSubscriber: true,
@@ -188,6 +207,7 @@ export const useAuth = () => {
       throw error;
     }
   };
+
   const signInWithGoogle = async () => {
     try {
       setAuthState((prev) => ({ ...prev, loading: true, error: null }));
@@ -207,13 +227,23 @@ export const useAuth = () => {
       const authListener = supabase.auth.onAuthStateChange(
         async (event, session) => {
           if (event === "SIGNED_IN" && session?.user?.email) {
-            await insertUserData(session.user.email);
-            setAuthState((prev) => ({
-              ...prev,
-              provider: "google",
-              loading: false,
-            }));
-            authListener.data.subscription.unsubscribe();
+            try {
+              setAuthState((prev) => ({
+                ...prev,
+                isAuthenticated: true,
+                user: session.user,
+                provider: "google",
+                loading: false,
+              }));
+            } catch (error) {
+              setAuthState((prev) => ({
+                ...prev,
+                loading: false,
+                error: "Failed to complete Google sign in",
+              }));
+            } finally {
+              authListener.data.subscription.unsubscribe();
+            }
           }
         }
       );
@@ -244,13 +274,23 @@ export const useAuth = () => {
       const authListener = supabase.auth.onAuthStateChange(
         async (event, session) => {
           if (event === "SIGNED_IN" && session?.user?.email) {
-            await insertUserData(session.user.email);
-            setAuthState((prev) => ({
-              ...prev,
-              provider: "github",
-              loading: false,
-            }));
-            authListener.data.subscription.unsubscribe();
+            try {
+              setAuthState((prev) => ({
+                ...prev,
+                isAuthenticated: true,
+                user: session.user,
+                provider: "github",
+                loading: false,
+              }));
+            } catch (error) {
+              setAuthState((prev) => ({
+                ...prev,
+                loading: false,
+                error: "Failed to complete GitHub sign in",
+              }));
+            } finally {
+              authListener.data.subscription.unsubscribe();
+            }
           }
         }
       );
