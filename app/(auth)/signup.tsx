@@ -205,7 +205,7 @@ export default function SignUp() {
             </View>
           </TouchableOpacity>
 
-          <View className="flex-row items-center space-x-4 py-6">
+          {/* <View className="flex-row items-center space-x-4 py-6">
             <View className="flex-1 h-[1px] bg-gray-200" />
             <Text
               className="text-gray-400 text-sm mx-2"
@@ -253,7 +253,7 @@ export default function SignUp() {
                 <Ionicons name="logo-github" size={24} color="#000000" />
               )}
             </TouchableOpacity>
-          </View>
+          </View> */}
 
           <Link href="/" asChild>
             <TouchableOpacity className="items-center py-6">
